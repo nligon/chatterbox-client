@@ -22,6 +22,11 @@ var setContains = function(ID) {
   }
 };
 
+// var sendMsg = function() {
+//   var message = document.getElementById('userInput').value;
+//   newMsg(message);
+// };
+
 var prependMessages = function() {
   var results = $.get('https://api.parse.com/1/classes/messages', function() {
     window.results2 = JSON.parse(results.responseText).results;
@@ -29,7 +34,7 @@ var prependMessages = function() {
       return setContains(obj.objectId);
     });
     for (var i = 0; i < accepted.length; i++) {
-      $('body').prepend(
+      $('#chats').prepend(
         `<div>      
          <p>Username: ${shieldXSS(accepted[i].username)}</p>
          <p>Message: ${shieldXSS(accepted[i].text)}</p>
@@ -49,15 +54,15 @@ var shieldXSS = function(string = '') {
   return rejected.join('');
 };
 
-var newMsg = function(user, msg, room) {
+var sendMsg = function() {
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: 'https://api.parse.com/1/classes/messages',
     type: 'POST',
     data: JSON.stringify({
-      username: user,
-      text: msg,
-      roomname: room
+      username: username,
+      text: document.getElementById('userInput').value,
+      roomname: "CatParty2016"
     }),
     contentType: 'application/json',
     success: function(data) {
