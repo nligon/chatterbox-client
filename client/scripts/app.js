@@ -6,28 +6,38 @@
 
 // **REST API Key:** WsWpCFH7gaxcB2B0jVvyKPOcT5NVHriAulknx789
 
-// $.get('https://api.parse.com/1/classes/messages', )
-
 var app = {};
 app.init = function() {};
 app.send = function() {};
-var results = $.get('https://api.parse.com/1/classes/messages', function() {
 
-  window.results2 = JSON.parse(results.responseText).results;
-  for (var i = 0; i < results2.length; i++) {
-    $('body').append(
-      `<div>
-         <p>Username: ${shieldXSS(results2[i].username)}</p>
-         <p>Message: ${shieldXSS(results2[i].text)}</p>
-       </div>`);
+var IDs = new Set();
+var setContains = function(ID) {
+  if (IDs.has(ID)) {
+    return true;
+  } else {
+    IDs.add(ID);
+    return false;
   }
-});
+};
 
-// results2 = JSON.parse(results.responseText)
+var prependMessages = function() {
+  var results = $.get('https://api.parse.com/1/classes/messages', function() {
+    window.results2 = JSON.parse(results.responseText).results;
+    var accepted = _.reject(window.results2, function(obj) {
+      return setContains(obj.objectId);
+    });
+    for (var i = 0; i < accepted.length; i++) {
+      $('body').prepend(
+        `<div>      
+         <p>Username: ${shieldXSS(accepted[i].username)}</p>
+         <p>Message: ${shieldXSS(accepted[i].text)}</p>
+       </div>`);
+    }
+  });
+};
 
-// setTimeout(function(){window.}, 1000);
+setInterval(prependMessages, 500);
 
-// arrayify string
 var shieldXSS = function(string = '') {
   var arrayed = string.split('');
   var set = new Set(['&', '<', '>', '!', '@', '$', '%', '(', ')', '=', '+', '{', '}', '[', ']']);
@@ -36,7 +46,3 @@ var shieldXSS = function(string = '') {
   });
   return rejected.join('');
 };
-
-// _.reject array, "Is this character a bad character"
-
-// stringify the array
