@@ -11,56 +11,63 @@ var username = window.prompt('SAY YOUR NAME') || 'anon';
 var app = {};
 app.init = function() {};
 app.send = function() {};
-
 var IDs = new Set();
-var setContains = function(ID) {
-  if (IDs.has(ID)) {
-    return true;
-  } else {
-    IDs.add(ID);
-    return false;
-  }
-};
 
-// var sendMsg = function() {
-//   var message = document.getElementById('userInput').value;
-//   newMsg(message);
-// };
 
-//roomname array = roomnames (get from noRepeats and filter using shieldXSS), either on every refresh of messages or when someone opens that menu
+
+//roomname array = roomnames (get from newMessages and filter using shieldXSS), either on every refresh of messages or when someone opens that menu
 //make a new room dropdodwn list every refresh
 //have the array of rooms populate into the drop down
 // have the dropdown links reference a function that clears the chats and re-appends only those that contain the selected roomname
 //
 
-
-var contentUpdate = function() {
-  $.get('https://api.parse.com/1/classes/messages', function(resultsObj) {
-    var dataArray = JSON.parse(resultsObj.responseText).results;
-  });
-};
-
-var updater = function() {
-  console.log(resultsObj);
-  var dataArray = JSON.parse(resultsObj.responseText).results;
-  var noRepeats = _.reject(window.results2, function(obj) {
-    return setContains(obj.objectId);
-  });
-  msgUpdate(noRepeats);
-};
-
-var msgUpdate = function(noRepeats) {
-  for (var i = 0; i < noRepeats.length; i++) {
+var roomLister = function(newMessages) {
+  for (var i = 0; i < newMessages.length; i++) {
     $('#chats').prepend(
       `<div>      
-         <p>Username: ${shieldXSS(noRepeats[i].username)}</p>
-         <p>Message: ${shieldXSS(noRepeats[i].text)}</p>
-         <p>Roomname: ${shieldXSS(noRepeats[i].text)}</p>
+         <p>Username: ${shieldXSS(newMessages[i].username)}</p>
+         <p>Message: ${shieldXSS(newMessages[i].text)}</p>
+         <p>Roomname: ${shieldXSS(newMessages[i].roomname)}</p>
        </div>`);
   }
 };
 
-setInterval(contentUpdate, 500);
+var grabContentStartUpdate = function() {
+  var resultsObj = $.get('https://api.parse.com/1/classes/messages', function() {
+    var dataArray = JSON.parse(resultsObj.responseText).results;
+    updater(dataArray);
+  });
+};
+
+var updater = function(dataArray) {
+  // console.log(dataArray);
+  var newMessages = _.reject(dataArray, function(obj) {
+    return setContains(IDs, obj.objectId);
+  });
+  roomList(dataArray);
+  msgPlacer(newMessages);
+};
+
+
+
+var roomList = function(dataArray) {
+  var roomResults = new Set();
+  for (var i = 0; i < dataArray.length; i++) {
+    roomResults.add(dataArray[i].roomname);
+  }
+  return roomResults;
+};
+
+var msgPlacer = function(newMessages) {
+  for (var i = 0; i < newMessages.length; i++) {
+    $('#chats').prepend(
+      `<div>      
+         <p>Username: ${shieldXSS(newMessages[i].username)}</p>
+         <p>Message: ${shieldXSS(newMessages[i].text)}</p>
+         <p>Roomname: ${shieldXSS(newMessages[i].roomname)}</p>
+       </div>`);
+  }
+};
 
 var shieldXSS = function(string = '') {
   var arrayed = string.split('');
@@ -91,3 +98,14 @@ var sendMsg = function() {
     }
   });
 };
+
+var setContains = function(set, element) {
+  if (set.has(element)) {
+    return true;
+  } else {
+    set.add(element);
+    return false;
+  }
+};
+
+setInterval(grabContentStartUpdate, 500);
