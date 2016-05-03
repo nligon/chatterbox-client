@@ -12,6 +12,7 @@ var app = {};
 app.init = function() {};
 app.send = function() {};
 var IDs = new Set();
+var latestRooms;
 
 
 
@@ -19,17 +20,24 @@ var IDs = new Set();
 //make a new room dropdodwn list every refresh
 //have the array of rooms populate into the drop down
 // have the dropdown links reference a function that clears the chats and re-appends only those that contain the selected roomname
-//
 
-var roomLister = function(newMessages) {
-  for (var i = 0; i < newMessages.length; i++) {
-    $('#chats').prepend(
-      `<div>      
-         <p>Username: ${shieldXSS(newMessages[i].username)}</p>
-         <p>Message: ${shieldXSS(newMessages[i].text)}</p>
-         <p>Roomname: ${shieldXSS(newMessages[i].roomname)}</p>
-       </div>`);
+// appends final set of rooms to dropdown
+var roomLister = function(roomSet) {
+  $('#select').empty();
+  for (var item of roomSet) {
+    $('#select').prepend(
+      `<option value='${shieldXSS(item)}'>${shieldXSS(item)}</option>`);
   }
+};
+
+// Makes Set of roomnames from the parsed data array of message objects.
+var roomSetProducer = function(dataArray) {
+  var roomResults = new Set();
+  for (var i = 0; i < dataArray.length; i++) {
+    roomResults.add(dataArray[i].roomname);
+  }
+  latestRooms = roomResults;
+  return roomResults;
 };
 
 var grabContentStartUpdate = function() {
@@ -39,23 +47,22 @@ var grabContentStartUpdate = function() {
   });
 };
 
-var updater = function(dataArray) {
-  // console.log(dataArray);
-  var newMessages = _.reject(dataArray, function(obj) {
-    return setContains(IDs, obj.objectId);
-  });
-  roomList(dataArray);
-  msgPlacer(newMessages);
+var setContains = function(set, element) {
+  if (set.has(element)) {
+    return true;
+  } else {
+    set.add(element);
+    return false;
+  }
 };
 
-
-
-var roomList = function(dataArray) {
-  var roomResults = new Set();
-  for (var i = 0; i < dataArray.length; i++) {
-    roomResults.add(dataArray[i].roomname);
-  }
-  return roomResults;
+var shieldXSS = function(string = '') {
+  var arrayed = string.split('');
+  var set = new Set(['&', '<', '>', '!', '@', '$', '%', '(', ')', '=', '+', '{', '}', '[', ']']);
+  var rejected = _.reject(arrayed, function(char) {
+    return set.has(char);
+  });
+  return rejected.join('');
 };
 
 var msgPlacer = function(newMessages) {
@@ -69,14 +76,15 @@ var msgPlacer = function(newMessages) {
   }
 };
 
-var shieldXSS = function(string = '') {
-  var arrayed = string.split('');
-  var set = new Set(['&', '<', '>', '!', '@', '$', '%', '(', ')', '=', '+', '{', '}', '[', ']']);
-  var rejected = _.reject(arrayed, function(char) {
-    return set.has(char);
+var updater = function(dataArray) {
+  // console.log(dataArray);
+  var newMessages = _.reject(dataArray, function(obj) {
+    return setContains(IDs, obj.objectId);
   });
-  return rejected.join('');
+  roomSetProducer(dataArray);
+  msgPlacer(newMessages);
 };
+
 
 var sendMsg = function() {
   $.ajax({
@@ -97,15 +105,6 @@ var sendMsg = function() {
       console.error('chatterbox: Failed to send message', data);
     }
   });
-};
-
-var setContains = function(set, element) {
-  if (set.has(element)) {
-    return true;
-  } else {
-    set.add(element);
-    return false;
-  }
 };
 
 setInterval(grabContentStartUpdate, 500);
