@@ -27,23 +27,40 @@ var setContains = function(ID) {
 //   newMsg(message);
 // };
 
-var prependMessages = function() {
-  var results = $.get('https://api.parse.com/1/classes/messages', function() {
-    window.results2 = JSON.parse(results.responseText).results;
-    var accepted = _.reject(window.results2, function(obj) {
-      return setContains(obj.objectId);
-    });
-    for (var i = 0; i < accepted.length; i++) {
-      $('#chats').prepend(
-        `<div>      
-         <p>Username: ${shieldXSS(accepted[i].username)}</p>
-         <p>Message: ${shieldXSS(accepted[i].text)}</p>
-       </div>`);
-    }
+//roomname array = roomnames (get from noRepeats and filter using shieldXSS), either on every refresh of messages or when someone opens that menu
+//make a new room dropdodwn list every refresh
+//have the array of rooms populate into the drop down
+// have the dropdown links reference a function that clears the chats and re-appends only those that contain the selected roomname
+//
+
+
+var contentUpdate = function() {
+  $.get('https://api.parse.com/1/classes/messages', function(resultsObj) {
+    var dataArray = JSON.parse(resultsObj.responseText).results;
   });
 };
 
-setInterval(prependMessages, 500);
+var updater = function() {
+  console.log(resultsObj);
+  var dataArray = JSON.parse(resultsObj.responseText).results;
+  var noRepeats = _.reject(window.results2, function(obj) {
+    return setContains(obj.objectId);
+  });
+  msgUpdate(noRepeats);
+};
+
+var msgUpdate = function(noRepeats) {
+  for (var i = 0; i < noRepeats.length; i++) {
+    $('#chats').prepend(
+      `<div>      
+         <p>Username: ${shieldXSS(noRepeats[i].username)}</p>
+         <p>Message: ${shieldXSS(noRepeats[i].text)}</p>
+         <p>Roomname: ${shieldXSS(noRepeats[i].text)}</p>
+       </div>`);
+  }
+};
+
+setInterval(contentUpdate, 500);
 
 var shieldXSS = function(string = '') {
   var arrayed = string.split('');

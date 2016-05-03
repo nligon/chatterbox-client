@@ -1,0 +1,18 @@
+-Implement room drop down
+-Implement "make new room" form field
+-Allow users to 'befriend' other users by clicking on their user name
+-Display all messages sent by friends in bold
+
+Extra-curriculur:
+-Have username remain same if previously set
+-Implement 'change username' button
+
+-Clean up product UI
+
+-Put chats into box and arrange them to append rather than prepend
+
+*Advanced:*
+
+Construct a Parse query that responds with only messages from a specific room. Use this query to simplify your room filtering logic.
+Allow users to have more than one room open at a time using tabs
+Show unread message counts in open tabs and a special notifier when the user is mentioned
