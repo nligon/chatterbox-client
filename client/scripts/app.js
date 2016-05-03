@@ -9,6 +9,8 @@
 // $.get('https://api.parse.com/1/classes/messages', )
 
 var app = {};
+app.init = function() {};
+app.send = function() {};
 var results = $.get('https://api.parse.com/1/classes/messages', function() {
 
   window.results2 = JSON.parse(results.responseText).results;
