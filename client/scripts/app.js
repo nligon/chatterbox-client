@@ -14,6 +14,7 @@ app.send = function() {};
 var IDs = new Set();
 var latestRooms;
 var currentRoom = 'testingSpam';
+var friends = new Set();
 
 jQuery(document).ready(function() {
   $('select').change(function() {
@@ -22,11 +23,9 @@ jQuery(document).ready(function() {
   });
 });
 
-//roomname array = roomnames (get from newMessages and filter using shieldXSS), either on every refresh of messages or when someone opens that menu
-//make a new room dropdodwn list every refresh
-//have the array of rooms populate into the drop down
-// have the dropdown links reference a function that clears the chats and re-appends only those that contain the selected roomname
-
+//set up a click listenerr on username nodes
+//on click, add that user to a set
+//iterate over that set, setting style to bold for messages that are children of the parent
 
 // appends final set of rooms to dropdown
 var roomLister = function(roomSet) {
@@ -78,14 +77,20 @@ var updatePage = function(roomName) {
     for (var i = 0; i < newMessages.length; i++) {
       $('#chats').prepend(
         `<div>      
-         <p>Username: ${shieldXSS(newMessages[i].username)}</p>
-         <p>Message: ${shieldXSS(newMessages[i].text)}</p>
+         <p onClick = 'addFriend(this.textContent.slice(10))'>Username: ${shieldXSS(newMessages[i].username)}</p>
+         <p class='message ${shieldXSS(newMessages[i].username)}'>Message: ${shieldXSS(newMessages[i].text)}</p>
          <p>Roomname: ${shieldXSS(newMessages[i].roomname)}</p>
        </div>`);
     }
   };
 };
 
+var addFriend = function(username) {
+  friends.add(username);
+  for (username of friends) {
+    $(`.${username}`).css('font-weight', 'bold');
+  }
+};
 
 var sendMsg = function() {
   $.ajax({
