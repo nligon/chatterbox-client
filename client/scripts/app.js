@@ -11,6 +11,7 @@ var username = window.prompt('SAY YOUR NAME') || 'anon';
 var app = {};
 app.init = function() {};
 app.send = function() {};
+app.fetch = function() {};
 var IDs = new Set();
 var latestRooms;
 var currentRoom = 'testingSpam';
@@ -42,6 +43,10 @@ var chooseRoom = function(roomName) {
   IDs = new Set();
   updatePage(roomName);
   return roomName;
+};
+
+var chooseRoomButton = function() {
+  chooseRoom(document.getElementById('roomChoice').value);
 };
 
 var updatePage = function(roomName) {
@@ -79,7 +84,7 @@ var updatePage = function(roomName) {
         `<div>      
          <p onClick = 'addFriend(this.textContent.slice(10))'>Username: ${shieldXSS(newMessages[i].username)}</p>
          <p class='message ${shieldXSS(newMessages[i].username)}'>Message: ${shieldXSS(newMessages[i].text)}</p>
-         <p>Roomname: ${shieldXSS(newMessages[i].roomname)}</p>
+         <!-- <p>Roomname: ${shieldXSS(newMessages[i].roomname)}</p> -->
        </div>`);
     }
   };

@@ -17,16 +17,16 @@
 <body>
   <div id="main">
     <h1>chatterbox</h1>
-    <select id="select" onclick="roomLister(latestRooms)" text="pooh">
+    <select id="select" onclick="roomLister(latestRooms)">
     <option selected disabled>Select a chatroom</option>
-<!--       <option value="volvo">Volvo</option>
-      <option value="saab">Saab</option>
-      <option value="mercedes">Mercedes</option>
-      <option value="audi">Audi</option> -->
     </select>
     <form id="form" onsubmit="return false;">
-      <input type="text" id="userInput" />
+    <p>Send message:</p>
+      <input type="text" id="userInput"/>
       <input type="submit" onclick="sendMsg();"/>
+    <p>Change room:</p>
+      <input type="text" id="roomChoice"/>
+      <input type="submit" onclick="chooseRoomButton();"/>
     </form>
   </div>
   <div id="chats"></div>
