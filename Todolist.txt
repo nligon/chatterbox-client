@@ -10,6 +10,7 @@ Extra-curriculur:
 -Clean up product UI
 
 -Put chats into box and arrange them to append rather than prepend
+-Clear out "submit" box after sending message
 
 *Advanced:*
 
