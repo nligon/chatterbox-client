@@ -15,7 +15,12 @@ var IDs = new Set();
 var latestRooms;
 var currentRoom = 'testingSpam';
 
-
+jQuery(document).ready(function() {
+  $('select').change(function() {
+    // alert($(this).val());
+    chooseRoom($(this).val());
+  });
+});
 
 //roomname array = roomnames (get from newMessages and filter using shieldXSS), either on every refresh of messages or when someone opens that menu
 //make a new room dropdodwn list every refresh
